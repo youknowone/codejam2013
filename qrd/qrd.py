@@ -96,12 +96,12 @@ class World(object):
 
 
 def solve(world):
-    return solve_(world, [])
-
-def solve_(world, depth):
     for ckey, chests in world.chestdic.iteritems():
         if len(chests) > world.allkeys[ckey]:
             return False
+    return solve_(world, [])
+
+def solve_(world, depth):
     def depprint(*ts):
         return
         indent = '    ' * len(depth)
