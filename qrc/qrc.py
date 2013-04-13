@@ -1,43 +1,19 @@
 
 from math import sqrt, ceil, trunc
 
-CACHE=True
-if CACHE:
-    from paldic import *
-    def is_palindrome(num):
-        if num in trueset:
-            return True
-        return False
-    
-    def square_is_palindrome(num):
-        if num in trueset2:
-            return True
-        return False
-else:
-    trueset = set([])
-    falseset = set([])
-    def is_palindrome(num):
-#        if num in falseset:
-#            return False
-        if num in trueset:
-            return True
-        snum = str(num)
-        lsnum = len(snum)
-        for i in xrange(0, lsnum / 2):
-            if snum[i] != snum[lsnum - i - 1]:
-#                falseset.add(num)
-                return False
-        trueset.add(num)
-        return True
+from paldic import pals, spals
 
-    trueset2 = set([])
-    def square_is_palindrome(num):
-        if num in trueset2:
-            return True
-        result = is_palindrome(num ** 2)
-        if result:
-            trueset2.add(num)
-        return result
+palindromes = set([])
+def is_palindrome(num):
+    if num in palindromes:
+        return True
+    snum = str(num)
+    lsnum = len(snum)
+    for i in xrange(0, lsnum / 2):
+        if snum[i] != snum[lsnum - i - 1]:
+            return False
+    palindromes.add(num)
+    return True
 
 def gen_palindrome1(snum):
     lnum = len(snum)
@@ -47,6 +23,15 @@ def gen_palindrome1(snum):
 
 def gen_palindrome2(snum):
     return snum + snum[::-1]
+
+def gen_palindrome3(snum):
+    return snum + '0' + snum[::-1]
+
+def gen_palindrome4(snum):
+    return snum + '1' + snum[::-1]
+
+def gen_palindrome5(snum):
+    return snum + '2' + snum[::-1]
 
 def get_seed1(snum):
     lnum = len(snum)
@@ -65,12 +50,12 @@ def fairsquare_slow(start, end):
     #print start, end, '------------'
     c = 0
     for rt in xrange(qstart, qend + 1):
-        if is_palindrome(rt) and square_is_palindrome(rt):
+        if is_palindrome(rt) and is_palindrome(rt**2):
             c += 1
             #print rt, rt**2
     return c
 
-def fairsquare(start, end):
+def fairsquare_cached(start, end):
     qstart = int(ceil(sqrt(start)))
     qend = trunc(sqrt(end))
 
@@ -87,7 +72,7 @@ def fairsquare(start, end):
         if pal > qend:
             break
         if qstart <= pal:
-            if square_is_palindrome(pal):
+            if is_palindrome(pal ** 2):
                 #print pal, pal ** 2
                 c += 1
         pal = int(gen_pal2(sseed))
@@ -100,6 +85,15 @@ def fairsquare(start, end):
         seed += 1
     return c
 
+def fairsquare(start, end):
+    count = 0
+    for spal in spals:
+        if spal > end:
+            break
+        if start <= spal <= end:
+            count += 1
+    return count
+
 if __name__ == '__main__':
     count = input()
     for x in xrange(1, count + 1):
@@ -107,4 +101,3 @@ if __name__ == '__main__':
         count = fairsquare(start, end)
         print 'Case #%d:' % x, count
 
-    print trueset2
