@@ -17,31 +17,26 @@ else:
     trueset = set([])
     falseset = set([])
     def is_palindrome(num):
-        if num in falseset:
-            return False
+#        if num in falseset:
+#            return False
         if num in trueset:
             return True
         snum = str(num)
         lsnum = len(snum)
         for i in xrange(0, lsnum / 2):
             if snum[i] != snum[lsnum - i - 1]:
-                falseset.add(num)
+#                falseset.add(num)
                 return False
         trueset.add(num)
         return True
 
     trueset2 = set([])
-    falseset2 = set([])
     def square_is_palindrome(num):
-        if num in falseset2:
-            return False
         if num in trueset2:
             return True
         result = is_palindrome(num ** 2)
         if result:
             trueset2.add(num)
-        else:
-            falseset2.add(num)
         return result
 
 def gen_palindrome1(snum):
@@ -84,7 +79,9 @@ def fairsquare(start, end):
     c = 0
     #print start, end, '------------'
     gen_pal2 = gen_palindrome2
-    for seed in xrange(int(sstart), int(send) + 1):
+    endian = long(send) + 1
+    seed = long(sstart)
+    while True:
         sseed = str(seed)
         pal = int(gen_palindrome1(sseed))
         if pal > qend:
@@ -100,6 +97,7 @@ def fairsquare(start, end):
             if square_is_palindrome(pal):
                 #print pal, pal ** 2
                 c += 1
+        seed += 1
     return c
 
 if __name__ == '__main__':
@@ -109,3 +107,4 @@ if __name__ == '__main__':
         count = fairsquare(start, end)
         print 'Case #%d:' % x, count
 
+    print trueset2
