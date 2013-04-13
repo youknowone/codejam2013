@@ -48,14 +48,15 @@ class World(object):
             except KeyError:
                 cdic[chest.keytype] = [chest]
         self.chestdic = cdic
-        """
         for chestlist in cdic.values():
             chestlist.sort(key=lambda chest: -len(chest.keys))
         self.chestdic = OrderedDict(sorted(cdic.iteritems(), 
                                     key=lambda (key, chests): -sum(
                                         map(lambda chest: len(chest.keys), chests)
                                     )))
-        """
+        self.allkeys = self.keys
+        for chest in self.chests:
+            self.allkeys += chest.keys
 
     def cleanup(self):
         chestkeys = self.chestdic.keys()
@@ -82,22 +83,31 @@ class World(object):
 
     def clone(self):
         new = World()
+        new.allkeys = copy.deepcopy(self.allkeys)
         new.keys = copy.deepcopy(self.keys)
         new.chestdic = OrderedDict()
         for k, chests in self.chestdic.iteritems():
             new.chestdic[k] = [chest.clone() for chest in chests]
         return new
 
-def solve(world, depth=0):
+
+def solve(world):
+    for ckey in world.chestdic:
+        if ckey not in world.allkeys:
+            return False
+    return solve_(world, [])
+
+def solve_(world, depth):
     def depprint(*ts):
         return
-        indent = '    ' * depth
+        indent = '    ' * len(depth)
         print indent,
         for ti in ts:
             t = str(ti)
             t = t.replace('\n', '\n ' + indent)
             print t,
         print ''
+    #print depth
     depprint('------------------------')
     depprint('depth:', depth)
     depprint(world)
@@ -116,7 +126,7 @@ def solve(world, depth=0):
             del(chests[i])
             if len(clone.chestdic[key]) == 0:
                 del(clone.chestdic[key])
-            result = solve(clone, depth+1)
+            result = solve_(clone, list(depth) + [chest.num])
             if isinstance(result, list):
                 return [chest.num] + result
     depprint('==> FAIL')
@@ -131,11 +141,11 @@ if __name__ == '__main__':
         lines += [raw_input() for x in xrange(0, chestcount)]
         world = World(lines)
         world.cleanup()
-#print '=================================='
+        #print '=================================='
         result = solve(world)
         print 'Case #%d:' % xx,
         if isinstance(result, list):
             print ' '.join(map(str, result))
         else:
             print 'IMPOSSIBLE'
-#print '=================================='
+        #print '=================================='
