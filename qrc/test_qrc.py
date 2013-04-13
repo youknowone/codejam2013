@@ -11,7 +11,8 @@ from qrc import *
     [99, True],
 ])
 def test_palindrome(n, r):
-    assert is_palindrome(n) == r
+    if not CACHE:
+        assert is_palindrome(n) == r
 
 @pytest.mark.parametrize(('n', 'p1', 'p2'), {
     (1, 1, 11),
@@ -30,7 +31,8 @@ def test_gen_palindrome(n, p1, p2):
     (21, 484, 2),
 ])
 def test_fairsquare(start, end, c):
-    assert fairsquare_slow(start, end) == c
+    if not CACHE:
+        assert fairsquare_slow(start, end) == c
     assert fairsquare(start, end) == c
 
 @pytest.mark.parametrize(('n', 's1', 's2'), [

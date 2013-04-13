@@ -1,10 +1,16 @@
 
 from math import sqrt, ceil, trunc
 
-if True:
+CACHE=True
+if CACHE:
     from paldic import *
     def is_palindrome(num):
         if num in trueset:
+            return True
+        return False
+    
+    def square_is_palindrome(num):
+        if num in trueset2:
             return True
         return False
 else:
@@ -23,6 +29,20 @@ else:
                 return False
         trueset.add(num)
         return True
+
+    trueset2 = set([])
+    falseset2 = set([])
+    def square_is_palindrome(num):
+        if num in falseset2:
+            return False
+        if num in trueset2:
+            return True
+        result = is_palindrome(num ** 2)
+        if result:
+            trueset2.add(num)
+        else:
+            falseset2.add(num)
+        return result
 
 def gen_palindrome1(snum):
     lnum = len(snum)
@@ -50,7 +70,7 @@ def fairsquare_slow(start, end):
     #print start, end, '------------'
     c = 0
     for rt in xrange(qstart, qend + 1):
-        if is_palindrome(rt) and is_palindrome(rt ** 2):
+        if is_palindrome(rt) and square_is_palindrome(rt):
             c += 1
             #print rt, rt**2
     return c
@@ -63,16 +83,21 @@ def fairsquare(start, end):
     send = get_seed2(str(qend))
     c = 0
     #print start, end, '------------'
+    gen_pal2 = gen_palindrome2
     for seed in xrange(int(sstart), int(send) + 1):
         sseed = str(seed)
         pal = int(gen_palindrome1(sseed))
-        if qstart <= pal <= qend:
-            if is_palindrome(pal ** 2):
+        if pal > qend:
+            break
+        if qstart <= pal:
+            if square_is_palindrome(pal):
                 #print pal, pal ** 2
                 c += 1
-        pal = int(gen_palindrome2(sseed))
-        if qstart <= pal <= qend:
-            if is_palindrome(pal ** 2):
+        pal = int(gen_pal2(sseed))
+        if pal > qend:
+            gen_pal2 = lambda x: 0
+        elif qstart <= pal:
+            if square_is_palindrome(pal):
                 #print pal, pal ** 2
                 c += 1
     return c
