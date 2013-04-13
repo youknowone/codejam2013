@@ -21,17 +21,21 @@ class World(object):
         self.chests = [Chest(line) for line in lines[2:]]
         assert len(self.keys) == self.keycount
         assert len(self.chests) == self.chestcount
-        self.chestdic = OrderedDict()
+        cdic = OrderedDict()
         for chest in self.chests:
             try:
-                self.chestdic[chest.keytype].append(chest)
+                cdic[chest.keytype].append(chest)
             except KeyError:
-                self.chestdic[chest.keytype] = [chest]
-        for chestlist in self.chestdic.values():
-            chestlist.sort(key=lambda chest: len(chest.keys))
+                cdic[chest.keytype] = [chest]
+        for chestlist in cdic.values():
+            chestlist.sort(key=lambda chest: -len(chest.keys))
+        self.chestdic = OrderedDict(sorted(cdic.iteritems(), 
+                                    key=lambda (key, chests): -sum(
+                                        map(lambda chest: len(chest.keys), chests)
+                                    )))
 
     def __repr__(self):
-        return '<World(keys{},{})>'.format(self.keys, self.chestdic)
+        return '<World(keys{},chests{{{}}})>'.format(self.keys, ','.join([(str(k) + ': ' + str(v)) for k, v in self.chestdic.iteritems()]))
 
     def clone(self):
         new = World()
@@ -41,6 +45,7 @@ class World(object):
 
 def solve(world):
     clone = world.clone()
+
 
 if __name__ == '__main__':
     count = input()
