@@ -40,20 +40,18 @@ class World(object):
         self.chests = [Chest(line) for line in lines[2:]]
         assert len(self.keys) == self.keycount
         assert len(self.chests) == self.chestcount
-        cdic = {}
         for i, chest in enumerate(self.chests):
             chest.num = i + 1
+        """
+        cdic = {}
+        for i, chest in enumerate(self.chests):
             try:
                 cdic[chest.keytype].append(chest)
             except KeyError:
                 cdic[chest.keytype] = [chest]
         self.chestdic = cdic
-        for chestlist in cdic.values():
-            chestlist.sort(key=lambda chest: -len(chest.keys))
-        self.chestdic = OrderedDict(sorted(cdic.iteritems(), 
-                                    key=lambda (key, chests): -sum(
-                                        map(lambda chest: len(chest.keys), chests)
-                                    )))
+        self.sort()
+        """
         self.allkeys = {}
         for keys in [self.keys] + [chest.keys for chest in self.chests]:
             for key in keys:
@@ -61,7 +59,18 @@ class World(object):
                     self.allkeys[key] += 1
                 except KeyError:
                     self.allkeys[key] = 1
-        self.cleanup()
+        #self.cleanup()
+
+    @property
+    def chestids(self):
+        return [chest.num for chest in self.chests]
+
+    """
+    def sort(self):
+        for chestlist in self.chestdic.values():
+            chestlist.sort(key=lambda chest: chest.num)
+        self.chestdic = OrderedDict(sorted(self.chestdic.iteritems(),
+                                    key=lambda (key, chests): chests[0].num))
 
     def cleanup(self):
         chestkeys = self.chestdic.keys()
@@ -73,6 +82,7 @@ class World(object):
                 if key not in chestkeys:
                     chest.keys.remove(key)
         self.keys.sort()
+    """
 
     def __repr__(self):
         r = '<World(\n'
@@ -90,20 +100,19 @@ class World(object):
         new = World()
         new.allkeys = copy.deepcopy(self.allkeys)
         new.keys = copy.deepcopy(self.keys)
-        new.chestdic = OrderedDict()
-        for k, chests in self.chestdic.iteritems():
-            new.chestdic[k] = [chest.clone() for chest in chests]
+#new.chestdic = copy.deepcopy(self.chestdic)
+        new.chests = list(self.chests)
         return new
 
 
 def solve(world):
+    #for ckey, chests in world.chestdic.iteritems():
+    #    if len(chests) > world.allkeys[ckey]:
+    #        return False
     clone = world.clone()
-    for ckey, chests in clone.chestdic.iteritems():
-        if len(chests) > clone.allkeys[ckey]:
-            return False
-    return solve_(clone, [])[0]
+    return solve_(clone, [], {})[0]
 
-def solve_(world, depth):
+def solve_(world, depth, cache):
     def depprint(*ts):
         return
         indent = '    ' * len(depth)
@@ -122,37 +131,38 @@ def solve_(world, depth):
             t = t.replace('\n', '\n ' + indent)
             print t,
         print ''
-    #print depth
+#print depth
     depprint('------------------------')
     depprint('depth:', depth)
     depprint(world)
-    if len(world.chestdic) == 0:
+    if len(world.chests) == 0:
         okprint([])
         okprint(world)
         return [], [world]
-    for key in world.keys:
-        if key not in world.chestdic:
+#if (tuple(world.keys),tuple(world.chestids)) in cache:
+#        #print 'cache hit!'
+#        return cache[tuple(world.keys),tuple(world.chestids)]
+    for i, chest in enumerate(world.chests):
+        key = chest.keytype
+        if key not in world.keys:
             continue
-        wchests = world.chestdic[key]
-        for i in xrange(0, len(wchests)):
-            depprint('use {} for ({}/{}) {}'.format(key, i, len(wchests), wchests[i]))
-            clone = world.clone()
-            chests = clone.chestdic[key]
-            chest = chests[i]
-            clone.keys.remove(key)
-            clone.allkeys[key] -= 1
-            clone.keys += chest.keys
-            clone.keys.sort()
-            del(chests[i])
-            if len(clone.chestdic[key]) == 0:
-                del(clone.chestdic[key])
-            result, worlds = solve_(clone, list(depth) + [chest.num])
-            if isinstance(result, list):
-                nodes = [chest.num] + result
-                okprint(nodes)
-                okprint(world)
-                return nodes, [world] + worlds
+
+        depprint('use {} for ({}/{}) {}'.format(key, i, len(world.chests), world.chests[i]))
+        clone = world.clone()
+        clone.keys.remove(key)
+        clone.allkeys[key] -= 1
+        clone.keys += chest.keys
+        del(clone.chests[i])
+        result, worlds = solve_(clone, list(depth) + [chest.num], cache)
+        if isinstance(result, list):
+            nodes = [chest.num] + result
+            okprint(nodes)
+            okprint(world)
+            result = nodes, [world] + worlds
+            #cache[tuple(world.keys),tuple(world.chestids)] = result
+            return result
     depprint('==> FAIL')
+    #cache[tuple(world.keys),tuple(world.chestids)] = False, []
     return False, []
 
 
