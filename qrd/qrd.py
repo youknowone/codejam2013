@@ -54,9 +54,13 @@ class World(object):
                                     key=lambda (key, chests): -sum(
                                         map(lambda chest: len(chest.keys), chests)
                                     )))
-        self.allkeys = self.keys
-        for chest in self.chests:
-            self.allkeys += chest.keys
+        self.allkeys = {}
+        for keys in [self.keys] + [chest.keys for chest in self.chests]:
+            for key in keys:
+                try:
+                    self.allkeys[key] += 1
+                except KeyError:
+                    self.allkeys[key] = 1
 
     def cleanup(self):
         chestkeys = self.chestdic.keys()
@@ -92,12 +96,12 @@ class World(object):
 
 
 def solve(world):
-    for ckey in world.chestdic:
-        if ckey not in world.allkeys:
-            return False
     return solve_(world, [])
 
 def solve_(world, depth):
+    for ckey, chests in world.chestdic.iteritems():
+        if len(chests) > world.allkeys[ckey]:
+            return False
     def depprint(*ts):
         return
         indent = '    ' * len(depth)
@@ -122,6 +126,7 @@ def solve_(world, depth):
             chests = clone.chestdic[key]
             chest = chests[i]
             clone.keys.remove(key)
+            clone.allkeys[key] -= 1
             clone.keys += chest.keys
             del(chests[i])
             if len(clone.chestdic[key]) == 0:
