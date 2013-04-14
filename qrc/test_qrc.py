@@ -1,6 +1,7 @@
 
 import pytest
 from qrc import *
+from gen_paldic import *
 
 @pytest.mark.parametrize(('n', 'r'), [
     [1, True],

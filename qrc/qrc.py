@@ -3,48 +3,8 @@ from math import sqrt, ceil, trunc
 
 from paldic import pals, spals
 
-palindromes = set([])
-def is_palindrome(num):
-    if num in palindromes:
-        return True
-    snum = str(num)
-    lsnum = len(snum)
-    for i in xrange(0, lsnum / 2):
-        if snum[i] != snum[lsnum - i - 1]:
-            return False
-    palindromes.add(num)
-    return True
-
-def gen_palindrome1(snum):
-    lnum = len(snum)
-    if lnum == 1:
-        return snum
-    return snum + snum[lnum-2::-1]
-
-def gen_palindrome2(snum):
-    return snum + snum[::-1]
-
-def gen_palindrome3(snum):
-    return snum + '0' + snum[::-1]
-
-def gen_palindrome4(snum):
-    return snum + '1' + snum[::-1]
-
-def gen_palindrome5(snum):
-    return snum + '2' + snum[::-1]
-
-def get_seed1(snum):
-    lnum = len(snum)
-    tlen = lnum / 2 + lnum % 2
-    return '1' + '0' * (tlen-1)
-    return snum[:tlen]
-
-def get_seed2(snum):
-    lnum = len(snum)
-    tlen = lnum / 2 + lnum % 2
-    return '9' * tlen
-
 def fairsquare_slow(start, end):
+    from gen_paldic import is_palindrome
     qstart = int(ceil(sqrt(start)))
     qend = trunc(sqrt(end))
     #print start, end, '------------'
@@ -56,6 +16,7 @@ def fairsquare_slow(start, end):
     return c
 
 def fairsquare_cached(start, end):
+    from gen_paldic import is_palindrome
     qstart = int(ceil(sqrt(start)))
     qend = trunc(sqrt(end))
 
