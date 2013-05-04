@@ -28,7 +28,7 @@ def solve(amote, nmotes, maxdepth):
         return [('add', (amote, nmotes), (tamote, tnmotes))] + tsolve
 
     dnmotes = nmotes[:-1]
-    dsolve = solve(amote, dnmotes, maxdepth=maxdepth-1)
+    dsolve = dnmotes#solve(amote, dnmotes, maxdepth=maxdepth-1)
     if len(tsolve) < len(dsolve):
         #print ' ' * maxdepth,'  adde dep{}: {} / {}'.format(maxdepth, tamote, tnmotes)
         return [('adde', (amote, nmotes), (tamote, tnmotes))] + tsolve
