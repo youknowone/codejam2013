@@ -26,9 +26,9 @@ def solve(h, remain, x, y):
     if d < h:
         return 1.0
     if d > h:
-        return 0
+        return 0.0
     if x == 0:
-        return 0
+        return 0.0
     cy = y + 1 # required count to be selected
     #print 'required selection:', cy, '/', remain
     tot = 2 ** remain
