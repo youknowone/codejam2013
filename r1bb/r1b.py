@@ -4,7 +4,7 @@ from bigfloat import *
 facttable = [1]
 
 factmax = 1
-for n in xrange(1, 1000):
+for n in xrange(1, 10000):
     factmax *= n
     facttable.append(factmax)
 assert facttable[3] == 6
@@ -21,7 +21,8 @@ def absolute(n):
     return i, s - (4 * i + 1)
 
 def solve(h, remain, x, y):
-    d = (int(abs(x)) + y) / 2
+    x = int(abs(x))
+    d = (x + y) / 2
     #print 'distance:', d, 'stackheight:', h
     if d < h:
         return 1.0
@@ -29,14 +30,20 @@ def solve(h, remain, x, y):
         return 0.0
     if x == 0:
         return 0.0
+    if remain > 2 * h:
+        ph = remain - 2 * h
+        if ph > y:
+            return 1.0
+    else:
+        ph = 0
     cy = y + 1 # required count to be selected
     #print 'required selection:', cy, '/', remain
     tot = 2 ** remain
-    cot = tot
-    for z in xrange(0, cy):
+    cot = 0
+    for z in xrange(cy, remain + 1):
         v = fact(remain) / (fact(remain - z) * fact(z))
-        cot -= v
-        #print 'remove fact', remain, '/ fact', remain - z, ' as ', v
+        cot += v
+        #print 'add fact', remain, '/ fact', remain - z, ' as ', v
     #print 'tot:', tot, 'cot:', cot
     return 1.0 * cot / tot
 
